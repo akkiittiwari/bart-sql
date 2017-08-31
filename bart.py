@@ -4,8 +4,6 @@ import xlrd
 import pandas
 import zipfile
 import os
-import shutil
-
 
 
 
