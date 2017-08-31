@@ -62,6 +62,23 @@ def read_xls(saveDir):
     final_df.to_csv('final_df.csv', mode='w', header=False, index=False)
     return
 
+
+def table_ops(conn, schema, table):
+    cur = conn.cursor()
+    cur.execute("DROP TABLE IF EXISTS %s.%s ;" % (schema, table))
+    cur.execute("CREATE SCHEMA IF NOT EXISTS %s ;" % (schema))
+    cur.execute("""CREATE TABLE IF NOT EXISTS %s.%s  (term varchar(2),
+    start varchar(2), riders float, yr int, mon int, daytype varchar(15));""" % (schema, table))
+    f = open(r'final_df.csv', 'r')
+    tab = schema + '.' + table
+    cur.copy_from(f, tab, sep=',')
+    f.close()
+    conn.commit()
+    conn.close()
+    os.remove("final_df.csv")
+    print "---done---"
+
+
 def connect_db():
     try:
         conn = psycopg2.connect("dbname='new_test' user='postgres' host='localhost' password='akshay'")
@@ -72,31 +89,17 @@ def connect_db():
     return conn
 
 
-def table_ops(conn, schema, table):
-    cur = conn.cursor()
-    cur.execute("DROP TABLE IF EXISTS %s.%s ;" % (schema, table))
-    cur.execute("CREATE SCHEMA IF NOT EXISTS %s ;" % (schema))
-    cur.execute("""CREATE TABLE IF NOT EXISTS %s.%s  (term varchar(2),
-    start varchar(2), riders float, yr int, mon int, daytype varchar(15));""" % (schema, table))
-    f = open(r'final_df.csv', 'r')
-    cur.copy_from(f, 'cls.bart', sep=',')
-    f.close()
-    conn.commit()
-    conn.close()
-    os.remove("final_df.csv")
-    print "---done---"
-
-
 def ProcessBart(saveDir, mainDir, SQLConn, schema, table):
     extract_zip(saveDir, mainDir)
     read_xls(saveDir)
     table_ops(SQLConn, schema, table)
 
 
+#----- Following is the function call for running the whole program
 
 tmpDir = "tmpDIR"
 dataDir = "BART_DATA"
-conn = connect_db()
+LCLconnR = connect_db()
 
 
-ProcessBart(tmpDir, dataDir, SQLConn=conn, schema="cls", table="bart")
+ProcessBart(tmpDir, dataDir, SQLConn=LCLconnR, schema="cls", table="bart")
