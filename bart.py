@@ -60,7 +60,7 @@ def read_xls(saveDir):
                 melted_riders = melt_df(rider_df, month, year, daytype)
                 final_df = final_df.append(melted_riders, ignore_index=True)
     final_df.to_csv('final_df.csv', mode='w', header=False, index=False)
-    return final_df
+    return
 
 def connect_db():
     try:
@@ -89,15 +89,14 @@ def table_ops(conn, schema, table):
 
 def ProcessBart(saveDir, mainDir, SQLConn, schema, table):
     extract_zip(saveDir, mainDir)
-    final_df = read_xls(saveDir)
-    conn = connect_db()
-    table_ops(conn, schema, table)
+    read_xls(saveDir)
+    table_ops(SQLConn, schema, table)
 
 
 
 tmpDir = "tmpDIR"
 dataDir = "BART_DATA"
+conn = connect_db()
 
 
-
-ProcessBart(tmpDir, dataDir, SQLConn=None, schema="cls", table="bart")
+ProcessBart(tmpDir, dataDir, SQLConn=conn, schema="cls", table="bart")
